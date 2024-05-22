@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TestScript : MonoBehaviour
 {
-    void Update()
+    void Start()
     {
 #if ThisSymbolDoesNotExist
         Debug.Log("ThisSymbolDoesNotExist actually exists");
