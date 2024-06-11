@@ -56,6 +56,8 @@ public class SymbolEditorWindow : EditorWindow
                             if(GUILayout.Button("X", removeButtonStyle))
                             {
                                 RemoveSymbol(offSymbols[i]);
+                                i--;
+                                continue;
                             }
                             if (GUILayout.Button(offSymbols[i], !symbolsState[offSymbols[i]] ? elementNormalStyle : elementSwitchedStyle))
                             {
@@ -106,6 +108,8 @@ public class SymbolEditorWindow : EditorWindow
                         if(GUILayout.Button("X", removeButtonStyle))
                         {
                             RemoveSymbol(onSymbols[i]);
+                            i--;
+                            continue;
                         }
                         if(!(i<onSymbols.Count)) break;
                         if (GUILayout.Button(onSymbols[i], symbolsState[onSymbols[i]] ? elementNormalStyle : elementSwitchedStyle))

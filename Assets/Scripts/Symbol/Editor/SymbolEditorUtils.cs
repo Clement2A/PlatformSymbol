@@ -2,7 +2,7 @@ using UnityEditor;
 
 public class SymbolEditorUtils
 {
-    [MenuItem("Symbols/Edit...")]
+    [MenuItem("Edit/Edit symbols")]
     public static void CallSymbolEditor()
     {
         EditorWindow.GetWindow<SymbolEditorWindow>(true, "Symbol Editor");
