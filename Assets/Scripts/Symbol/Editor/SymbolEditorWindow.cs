@@ -6,7 +6,7 @@ using System;
 
 public class SymbolEditorWindow : EditorWindow
 {
-    [SerializeField] Dictionary<string,bool> symbolsState = new();
+    [SerializeField] SerializableDictionary<string,bool> symbolsState = new();
     List<string> offSymbols = new();
     List<string> onSymbols = new();
     List<string> removedSymbols = new();
@@ -251,6 +251,7 @@ public class SymbolEditorWindow : EditorWindow
     void RemoveSymbol(string _symbol)
     {
         removedSymbols.Add(_symbol);
+        Debug.Log($"Symbol is {symbolsState[_symbol]}");
         (symbolsState[_symbol] ? onSymbols : offSymbols).Remove(_symbol);
     }
 
@@ -275,19 +276,13 @@ public class SymbolEditorWindow : EditorWindow
         return true;
     }
 
-    Dictionary<string, bool> LoadSymbols()
+    SerializableDictionary<string, bool> LoadSymbols()
     {
         string _path = Path.Combine(Application.dataPath, JSON_FILE);
         if (!File.Exists(_path))
             return new();
         
-        SerializableDictionary<string, bool> _jsonDeserialized = JsonUtility.FromJson<SerializableDictionary<string, bool>>(File.ReadAllText(_path));
-        Dictionary<string, bool> _result = new Dictionary<string, bool>();
-        foreach (KeyValuePair<string, bool> _symbol in _jsonDeserialized)
-        {
-            _result.Add(_symbol.Key, _symbol.Value);
-        }
-        return _result;
+        return JsonUtility.FromJson<SerializableDictionary<string, bool>>(File.ReadAllText(_path));
     }
 
     void ConfirmChanges()
@@ -322,19 +317,13 @@ public class SymbolEditorWindow : EditorWindow
 
     void UpdateJsonFile()
     {
-        SerializableDictionary<string, bool> _toSerialize = new SerializableDictionary<string, bool>();
-
-        foreach (KeyValuePair<string, bool> _symbol in symbolsState)
-        {
-            _toSerialize.Add(_symbol.Key, _symbol.Value);
-        }
         
         string _path = Path.Combine(Application.dataPath, JSON_FILE);
         if (!File.Exists(_path))
             File.Create(_path).Dispose();
-        string _result = JsonUtility.ToJson(_toSerialize);
+        string _result = JsonUtility.ToJson(symbolsState);
         File.WriteAllText(_path, string.Empty);
-        File.WriteAllText(_path, _result);//
+        File.WriteAllText(_path, _result);
     }
 }
 
