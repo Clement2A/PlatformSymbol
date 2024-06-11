@@ -264,6 +264,10 @@ public class SymbolEditorWindow : EditorWindow
 
     bool AddSymbol(string _symbol)
     {
+        _symbol = _symbol.Trim();
+        if (_symbol == "")
+            return false;
+        _symbol = _symbol.Replace(' ', '_');
         if (symbolsState.ContainsKey(_symbol))
             return false;
         symbolsState.Add(_symbol, false);
