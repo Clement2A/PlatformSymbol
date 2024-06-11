@@ -276,7 +276,14 @@ public class SymbolEditorWindow : EditorWindow
         string _path = Path.Combine(Application.dataPath, JSON_FILE);
         if (!File.Exists(_path))
             return new();
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(_path));
+        
+        SerializableDictionary<string, bool> _jsonDeserialized = JsonUtility.FromJson<SerializableDictionary<string, bool>>(File.ReadAllText(_path));
+        Dictionary<string, bool> _result = new Dictionary<string, bool>();
+        foreach (KeyValuePair<string, bool> _symbol in _jsonDeserialized)
+        {
+            _result.Add(_symbol.Key, _symbol.Value);
+        }
+        return _result;
     }
 
     void ConfirmChanges()
@@ -311,29 +318,53 @@ public class SymbolEditorWindow : EditorWindow
 
     void UpdateJsonFile()
     {
+        SerializableDictionary<string, bool> _toSerialize = new SerializableDictionary<string, bool>();
+
+        foreach (KeyValuePair<string, bool> _symbol in symbolsState)
+        {
+            _toSerialize.Add(_symbol.Key, _symbol.Value);
+        }
+        
         string _path = Path.Combine(Application.dataPath, JSON_FILE);
         if (!File.Exists(_path))
             File.Create(_path).Dispose();
-        string _result = Newtonsoft.Json.JsonConvert.SerializeObject(symbolsState);
+        string _result = JsonUtility.ToJson(_toSerialize);
         File.WriteAllText(_path, string.Empty);
         File.WriteAllText(_path, _result);//
     }
 }
 
 [Serializable]
-public class SymbolBoolPair
+public class SerializableDictionary<K, V> : Dictionary<K, V>, ISerializationCallbackReceiver
 {
-    public string symbol = "";
-    public bool value = false;
-
-    public SymbolBoolPair(string symbol, bool value)
+    [SerializeField]
+    private List<K> keys = new List<K>();
+ 
+    [SerializeField]
+    private List<V> values = new List<V>();
+ 
+    public void OnBeforeSerialize()
     {
-        this.symbol = symbol;
-        this.value = value;
+        keys.Clear();
+        values.Clear();
+        using Enumerator enumerator = GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            KeyValuePair<K, V> current = enumerator.Current;
+            keys.Add(current.Key);
+            values.Add(current.Value);
+        }
     }
-
-    public override string ToString()
+ 
+    public void OnAfterDeserialize()
     {
-        return $"{symbol} - {value}";
+        Clear();
+        for (int i = 0; i < keys.Count; i++)
+        {
+            Add(keys[i], values[i]);
+        }
+ 
+        keys.Clear();
+        values.Clear();
     }
 }
